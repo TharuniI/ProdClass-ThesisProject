@@ -22,4 +22,4 @@ https://colab.research.google.com/drive/1MTOwVfHEH5lh2Nm9pHiisBt_TBkfuTQf?usp=sh
 
 # Author
 Tharuni Iranjan <br>
-Thesis Advisor: Dr Karoush Davoudi
+Thesis Advisor: Dr Kourosh Davoudi
