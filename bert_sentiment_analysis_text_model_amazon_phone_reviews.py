@@ -53,9 +53,13 @@ df.head()
 samsung_phones = df.loc[df['brand'] == 'Samsung']
 samsung_phones = samsung_phones.drop(['url', 'image', 'reviewUrl', 'originalPrice'], axis=1)
 
+samsung_phones = samsung_phones.reset_index()
 samsung_phones.head()
 
-samsung_phones['title'][53]
+# Find the phone with the max number of reviews
+max = np.argmax(samsung_phones['totalReviews'])
+max_index = samsung_phones['title'][max]
+max_index
 
 """Review Data"""
 
@@ -64,9 +68,10 @@ df2 = pd.read_csv('amazon_phone_reviews.csv')
 df2.head()
 
 # Extract only the Samsung Galaxy Note 3 review rows, and remove unneccessary columns
-note_3 = df2.loc[df2['asin'] == samsung_phones['asin'][53]]
+note_3 = df2.loc[df2['asin'] == samsung_phones['asin'][max]]
 note_3 = note_3.drop(['asin','name', 'verified', 'title'], axis=1)
 
+note_3 = note_3.reset_index()
 note_3.head()
 
 """Clean Data"""
@@ -94,6 +99,9 @@ note_3.head()
 
 """**Sentiment Analysis**"""
 
+tokenizer = AutoTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+model = AutoModelForSequenceClassification.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+
 def sentiment_score(review):
     tokens = tokenizer.encode(review, return_tensors='pt')
     result = model(tokens)
@@ -101,17 +109,23 @@ def sentiment_score(review):
 
 note_3['sentiment'] = note_3['review'].apply(lambda x: sentiment_score(x[:512]))
 
-note_3.tail()
+note_3.head()
 
 """Split into 3 tables"""
 
-positive_table = df.loc[note_3['sentiment'] >= 4]
+positive_table = note_3.loc[note_3['sentiment'] >= 4]
+positive_table = positive_table.reset_index()
+positive_table = positive_table.drop(['level_0', 'index'], axis=1)
 positive_table.head()
 
-negative_table = df.loc[df['sentiment'] <= 2]
+negative_table = note_3.loc[note_3['sentiment'] <= 2]
+negative_table = negative_table.reset_index()
+negative_table = negative_table.drop(['level_0', 'index'], axis=1)
 negative_table.head()
 
-neutral = df.loc[df['sentiment'] == 3]
+neutral = note_3.loc[note_3['sentiment'] == 3]
+neutral = neutral.reset_index()
+neutral = neutral.drop(['level_0', 'index'], axis=1)
 neutral.head()
 
 """**Text Modelling**"""
@@ -123,13 +137,13 @@ def find_topics(data):
   # Get the most frequent topics
   topic_freq = topic_model.get_topic_freq()
   outliers = topic_freq['Count'][topic_freq['Topic']==-1].iloc[0]
-  return topic_model.get_topic(topic_freq['Topic'].iloc[1])
+  return topic_model.get_topic(topic_freq['Topic'].iloc[0])
 
-positive_topics = find_topics(df['review clean'])
+positive_topics = find_topics(positive_table['review'])
 positive_topics
 
-negative_topics = find_topics(df['review clean'])
+negative_topics = find_topics(negative_table['review'])
 negative_topics
 
-neutral_topics = find_topics(df['review clean'])
+neutral_topics = find_topics(neutral['review'])
 neutral_topics
