@@ -3,7 +3,7 @@ Undergraduate Thesis Project using NLP
 
 
 ## About
-A research study on the ability to auomatically classifty product features into positive and negative affiliations usig a product review dataset. <br>
+A research study on the ability to automatically classify product features into positive and negative affiliations using a product review dataset.
 
 ## Mission
 The purpose of this project is utilize customer reviews to allow companies to improve their products and subsequently increase customer purchasing. 
